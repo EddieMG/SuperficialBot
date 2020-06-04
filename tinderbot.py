@@ -7,6 +7,9 @@ USERNAME = "nicolbolasjoder@gmail.com"
 PASSWORD = "06091996Eduard"
 
 #Remember to check the chrome version for the webdriver!!!
+#Verify the email to avoid the pop up.
+
+
 
 class Tinderbot():
     def __init__(self):
@@ -29,9 +32,9 @@ class Tinderbot():
 
         elif m =="Log in with phone number":
             fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/button')
-            fb_btn_description = fb_btn.get_attribute('aria-label')
-            n= fb_btn.get_property('outerText')
-            print(n)
+            #fb_btn_description = fb_btn.get_attribute('aria-label')
+            #n= fb_btn.get_property('outerText')
+            #print(n)
             fb_btn.click()
             fb_btn2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
             fb_btn2.click()
@@ -58,45 +61,66 @@ class Tinderbot():
         decline_not = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[2]')
         decline_not.click()
 
-        decline_cookies = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[2]/div/div/div[1]/div/button')
-    
+        decline_cookies = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[2]/div/div/div[1]/button')
+                                  
         decline_cookies.click()
 
         sleep(3)
         #Add try and catch, once quarantine is over this wont appear.
-        no_passport = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
-        no_passport.click()
-
+        try:
+            no_passport = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
+            no_passport.click()
+        except:
+            pass
+ 
 
     def get_images(self):
-        Swiper = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div[2]')
-        num_images = Swiper.get_property('childNodes')
-        #num_images = Swiper.get_property('childElementCount')
-        print(num_images)
+        onepicture = False
+
+        try:
+            Swiper = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div[2]')
+            num_images = Swiper.get_property('childNodes')
+
+        except:
+            image =  self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div/div/div/div/div')
+            print(image)    
+            print("DID IT WORK?????????")                                          
+            #TODO add if statement to extract just one picture
+            onepicture = True
+
         i=1
-        
-        for image in num_images:
-            image.click()
-            sleep(1)
-            image_path = '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div[1]/div/div[{}]/div/div'.format(i)
-            print(image_path)
-            img = self.driver.find_element_by_xpath(image_path)
-            print(img)
-            print(i)
-            image_attributes = img.get_attribute('style') 
-            image_attributes.find('"')
-            link_img = image_attributes[image_attributes.find('"')+1:image_attributes.find('"',25)]
-            print(link_img)
-            urllib.request.urlretrieve(link_img, "{}.jpg".format(datetime.now().strftime("%Y%H%M%S%f")))
-            
-            i+=1
+        if not onepicture :
+            for image in num_images:
+                #print(image)
+                image.click()
+                sleep(1)
+                image_path = '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div[1]/div/div[{}]/div/div'.format(i)
+                #print(image_path)
+                img = self.driver.find_element_by_xpath(image_path)
+                #print(img)
+                #print(i)
+                self.save_image(img)
+                i+=1
+        else : 
+            img = image    
+            self.save_image(img)
 
+        self.judgement_call()
+    def save_image(self,img):
 
+        image_attributes = img.get_attribute('style') 
+        image_attributes.find('"')
+        link_img = image_attributes[image_attributes.find('"')+1:image_attributes.find('"',25)]
+        print(link_img)
+        urllib.request.urlretrieve(link_img, "{}.jpg".format(datetime.now().strftime("%Y%H%M%S%f")))
+
+    def judgement_call(self):
         choice = random.random()    
-        
+        #Reinforcement learning here would be cool -Montra 2020
+        #reward es el match.
         
         like ='//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button'
-               
+                
         dislike ='//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button'
         print(choice)          
         if choice >= 0.5:
@@ -106,15 +130,20 @@ class Tinderbot():
             next_btn = self.driver.find_element_by_xpath(dislike)
             next_btn.click()
         sleep(1+choice*2)
-           
-
-
-
+        try:
+            back_to_tinder = self.driver.find_element_by_xpath('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
+            back_to_tinder.click()
+       ## back to tinder button?? //*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a
+        except:
+            pass
 
 
 if __name__ == "__main__":
     bot = Tinderbot()
     bot.login()    
     for i in range(10):
-        bot.get_images()
-        sleep(0.2)
+        try:
+            bot.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button[2]').click()
+        except:
+            bot.get_images()
+            sleep(0.2)
