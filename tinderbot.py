@@ -1,3 +1,4 @@
+
 from selenium import webdriver
 from time import sleep
 import urllib.request
@@ -20,10 +21,14 @@ class Tinderbot():
     def login(self):
         self.driver.get('https://tinder.com')
 
+
         
         sleep(2)
-        fb_btn1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[2]/button')
-
+        login_butoon = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/header/div[1]/div[2]/div/button')
+        login_butoon.click()
+        sleep(2)
+        fb_btn1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[1]/div/div[3]/span/div[2]/button')
+                                                  
   
         m = fb_btn1.get_attribute('aria-label')
         print(m)
@@ -82,7 +87,7 @@ class Tinderbot():
             num_images = Swiper.get_property('childNodes')
 
         except:
-            image =  self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div/div/div/div/div')
+            image =  self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div[1]/div[3]/div[1]/div/span/div')
             print(image)    
             print("DID IT WORK?????????")                                          
             #TODO add if statement to extract just one picture
@@ -94,7 +99,7 @@ class Tinderbot():
                 #print(image)
                 image.click()
                 sleep(1)
-                image_path = '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[1]/div[1]/div/div[{}]/div/div'.format(i)
+                image_path = '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/span[{}]/div'.format(i)
                 #print(image_path)
                 img = self.driver.find_element_by_xpath(image_path)
                 #print(img)
@@ -120,8 +125,9 @@ class Tinderbot():
         #reward es el match.
         
         like ='//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button'
-                
+
         dislike ='//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button'
+
         print(choice)          
         if choice >= 0.5:
             next_btn = self.driver.find_element_by_xpath(like)
